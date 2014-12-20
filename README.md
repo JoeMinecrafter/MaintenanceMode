@@ -3,6 +3,8 @@ MaintenanceMode
 
 A simple maintenance mode plugin for BungeeCord and Bukkit servers.
 
+_All players are kicked when maintenance mode is entered_
+
 ### Permissions
 The only permission is `maintenance.toggle` which grants access to every subcommand.
 
@@ -22,3 +24,5 @@ The command is `maintenance` but it is worth noting that the aliases `mm` and `m
 |list|List all whitelisted players|
 |reload|Reload the configuration file|
 |help|Display all subcommands|
+
+### 
