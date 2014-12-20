@@ -28,7 +28,7 @@
 
     <groupId>de.albionco</groupId>
     <artifactId>Maintenance</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <properties>
         <bungee.version>1.8-SNAPSHOT</bungee.version>
         <bukkit.version>1.8-R0.1-SNAPSHOT</bukkit.version>
@@ -45,6 +45,31 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <version>1.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>replace</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>${basedir}/target/classes/plugin.yml</include>
+                        <include>${basedir}/target/classes/bungee.yml</include>
+                    </includes>
+                    <replacements>
+                        <replacement>
+                            <token>#VERSION#</token>
+                            <value>${project.version}</value>
+                        </replacement>
+                    </replacements>
                 </configuration>
             </plugin>
         </plugins>

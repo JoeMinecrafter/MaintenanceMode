@@ -1,4 +1,4 @@
 name: MaintenanceMode
 author: Albion
-version: 1.0.0
+version: #VERSION#
 main: de.albionco.maintenance.bungee.BungeePlugin
