@@ -22,123 +22,214 @@
 
 package de.albionco.maintenance.bungee;
 
-import de.albionco.maintenance.Configuration;
-import de.albionco.maintenance.bungee.commands.CommandMaintenance;
-import lombok.Getter;
-import lombok.Setter;
-import net.cubespace.Yamler.Config.InvalidConfigurationException;
-import net.md_5.bungee.api.ChatColor;
+import de.albionco.maintenance.bungee.command.CommandMaintenance;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
-import net.md_5.bungee.api.event.PreLoginEvent;
-import net.md_5.bungee.api.event.ProxyPingEvent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+
+import static de.albionco.maintenance.Messages.colour;
 
 /**
- * Created by Connor Harries on 19/12/2014.
+ * BungeeCord version of the "MaintenanceMode" plugin
  *
  * @author Connor Spencer Harries
  */
 public class BungeePlugin extends Plugin implements Listener {
 
-    @Setter
-    @Getter
-    private Boolean Enabled;
+    /**
+     * Explicitly state we want to look for config.yml
+     */
+    private final String file = "config.yml";
 
-    @Getter
-    @Setter
-    private Configuration Config;
+    /**
+     * Store the list of whitelisted players
+     */
+    private List<String> whitelist;
 
-    @Getter
-    @Setter
-    private ServerPing Response;
+    /**
+     * Store the Configuration object
+     */
+    private Configuration config;
 
-    @Getter
-    @Setter
-    private List<String> Whitelist = new ArrayList<>();
+    /**
+     * Store the message players are shown when kicked
+     */
+    private String message_kick;
 
-    @Getter
-    @Setter
-    private String Message = "";
+    /**
+     * Store the response that is sent to clients when the server is pinged in maintenance mode
+     */
+    private ServerPing ping;
+
+    /**
+     * Store whether maintenance mode is enabled or not
+     */
+    private boolean enabled;
 
     @Override
     public void onEnable() {
-        Configuration config = new Configuration(getDataFolder());
-
         try {
-            config.init();
-            getLogger().info("Loaded configuration values");
-        } catch (InvalidConfigurationException e) {
-            getLogger().warning("Unable to load configuration, quitting");
-            return;
+            saveDefaultConfig();
+            whitelist = new ArrayList<>();
+        } catch (IOException e) {
+            getLogger().severe("Unable to save default config file");
+        } finally {
+            if(reload()) {
+                getLogger().info("Successfully loaded configuration values");
+            } else {
+                getLogger().severe("Unable to load configuration values");
+            }
         }
 
-        setConfig(config);
-        reload(false);
-
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandMaintenance(this));
-        ProxyServer.getInstance().getPluginManager().registerListener(this, this);
+        ProxyServer.getInstance().getPluginManager().registerListener(this, new ServerListener(this));
     }
 
     @Override
     public void onDisable() {
-        getConfig().setEnabled(this.getEnabled());
-        getConfig().setWhitelist(getWhitelist());
+        save();
+    }
 
+    /**
+     * Reload the configuration object
+     * @return true if the config loaded successfully
+     */
+    public boolean reload() {
         try {
-            getConfig().save();
-        } catch (InvalidConfigurationException e) {
-            // ignored, not much we can do
-        }
-    }
+            config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new File(getDataFolder(), this.file));
+            getLogger().info("Loaded configuration from file");
+        } catch (IOException e) {
+            getLogger().severe("Unable to load configuration file");
 
-    @EventHandler
-    public void ping(ProxyPingEvent event) {
-        if (this.getEnabled()) {
-            event.setResponse(getResponse());
-        }
-    }
-
-    @EventHandler
-    public void join(PreLoginEvent event) {
-        if(this.getEnabled()) {
-            String name = event.getConnection().getName();
-            if(!getWhitelist().contains(name)) {
-                event.setCancelled(true);
-                event.setCancelReason(colour(getMessage()));
-            }
-        }
-    }
-
-    public boolean reload(boolean rl) {
-        try {
-            if(rl) {
-                getConfig().reload();
-            }
-
-            setWhitelist(getConfig().getWhitelist());
-            this.setEnabled(getConfig().getEnabled());
-            setMessage(getConfig().getMessage());
-
-            ServerPing.Protocol protocol = new ServerPing.Protocol("Maintenance", Short.MAX_VALUE);
-            ServerPing.Players players = new ServerPing.Players(0, 0, null);
-            Favicon icon = null;
-            ServerPing ping = new ServerPing(protocol, players, colour(getMessage()), icon);
-            setResponse(ping);
-
-            return true;
-        } catch (InvalidConfigurationException e) {
+            // Let the calling class/method know things didn't go so well
             return false;
         }
+
+        ServerPing.Protocol protocol = new ServerPing.Protocol("Maintenance", Short.MAX_VALUE);
+        ServerPing.Players players = new ServerPing.Players(0, 0, null);
+        Favicon icon = null;
+
+        this.enabled = getConfig().getBoolean("enabled", false);
+        this.whitelist = getConfig().getStringList("whitelist");
+        this.message_kick = colour(getConfig().getString("messages.kick", "&cThe server is in maintenance mode, sorry for any inconvenience."));
+        this.ping = new ServerPing(protocol, players, colour(getConfig().getString("messages.motd", "&c&lMaintenance Mode")), icon);
+
+        // Let the calling class/method know everything went well
+        return true;
     }
 
-    private String colour(String in) {
-        return ChatColor.translateAlternateColorCodes('&', in);
+    /**
+     * Kick a {@link net.md_5.bungee.api.connection.ProxiedPlayer} from the server
+     * @param kick null to kick all players
+     */
+    public void kick(ProxiedPlayer kick) {
+        if(kick == null) {
+            boolean skip = (whitelist == null || whitelist.size() > 0);
+
+            for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+                if(skip) {
+                    player.disconnect(this.message_kick);
+                } else {
+                    if(!player.hasPermission("maintenance.bypass")) {
+                        if (!whitelist.contains(player.getName())) {
+                            player.disconnect(this.message_kick);
+                        }
+                    }
+                }
+            }
+        } else {
+            kick.disconnect(colour(getConfig().getString("messages.kick", this.message_kick)));
+        }
+    }
+
+    /**
+     * Save the configuration values to the configuration file
+     */
+    private void save() {
+        try {
+            config.set("enabled", this.enabled);
+            config.set("whitelist", this.whitelist);
+
+            ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, new File(getDataFolder(), this.file));
+            getLogger().log(Level.INFO, "Saved configuration file");
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Unable to save configuration file");
+        }
+    }
+
+    /**
+     * Implementation of Bukkit's saveDefaultConfig()
+     * @throws java.io.IOException
+     */
+    private void saveDefaultConfig() throws IOException {
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdir();
+        }
+
+        File file = new File(getDataFolder(), "config.yml");
+        if (!file.exists()) {
+            Files.copy(getResourceAsStream("config.yml"), file.toPath());
+        }
+    }
+
+    /**
+     * Get the configuration object
+     * @return {@link net.md_5.bungee.config.Configuration} containing configuration values
+     */
+    public Configuration getConfig() {
+        return this.config;
+    }
+
+    /**
+     * Get whether maintenance mode is active
+     * @return true if enabled
+     */
+    public boolean getEnabled() {
+        return this.enabled;
+    }
+
+    /**
+     * Set whether maintenance mode is enabled
+     * @param enabled true to enable maintenance mode
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    /**
+     * Get the list of whitelisted players
+     * @return {@link java.util.List} containing player names
+     */
+    public List<String> getWhitelist() {
+        return this.whitelist;
+    }
+
+    /**
+     * Get the ping object
+     * @return {@link net.md_5.bungee.api.ServerPing} containing maintenance mode data
+     */
+    public ServerPing getPing() {
+        return this.ping;
+    }
+
+    /**
+     * Get the kick message
+     * @return message to display to kicked players
+     */
+    public String getKickMessage() {
+        return message_kick;
     }
 }

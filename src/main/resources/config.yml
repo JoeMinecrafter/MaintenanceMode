@@ -1,0 +1,5 @@
+enabled: false
+messages:
+    kick: '&cThe server is in maintenance mode, sorry for any inconvenience.'
+    motd: '&c&lMaintenance Mode'
+whitelist: []

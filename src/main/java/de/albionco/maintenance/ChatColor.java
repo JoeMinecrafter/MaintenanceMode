@@ -22,35 +22,51 @@
 
 package de.albionco.maintenance;
 
-
-import lombok.Getter;
-import lombok.Setter;
-import net.cubespace.Yamler.Config.Config;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Created by Connor Harries on 19/12/2014.
+ * Created by Connor Harries on 20/12/2014.
  *
  * @author Connor Spencer Harries
  */
-public class Configuration extends Config {
+@SuppressWarnings("unused")
+public enum ChatColor {
+    BLACK('0'),
+    DARK_BLUE('1'),
+    DARK_GREEN('2'),
+    DARK_AQUA('3'),
+    DARK_RED('4'),
+    DARK_PURPLE('5'),
+    GOLD('6'),
+    GRAY('7'),
+    DARK_GRAY('8'),
+    BLUE('9'),
+    GREEN('a'),
+    AQUA('b'),
+    RED('c'),
+    LIGHT_PURPLE('d'),
+    YELLOW('e'),
+    WHITE('f');
 
-    public Configuration(File location) {
-        CONFIG_FILE = new File(location, "config.yml");
+    public static final char COLOR_CHAR = '\u00A7';
+
+    private final char code;
+
+    private ChatColor(char code) {
+        this.code = code;
     }
 
-    @Setter
-    @Getter
-    private Boolean enabled = false;
+    @Override
+    public String toString() {
+        return COLOR_CHAR + "" + code;
+    }
 
-    @Getter
-    @Setter
-    private List<String> whitelist = new ArrayList<>();
-
-    @Getter
-    @Setter
-    private String message = "&c&lMaintenance Mode Enabled";
+    public static String translateAlternateColorCodes(char altColorChar, String textToTranslate) {
+        char[] b = textToTranslate.toCharArray();
+        for (int i = 0; i < b.length - 1; i++) {
+            if (b[i] == altColorChar && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i+1]) > -1) {
+                b[i] = ChatColor.COLOR_CHAR;
+                b[i+1] = Character.toLowerCase(b[i+1]);
+            }
+        }
+        return new String(b);
+    }
 }
