@@ -5,7 +5,7 @@ A simple maintenance mode plugin for BungeeCord and Bukkit servers.
 
 View this resource on spigot: http://www.spigotmc.org/resources/maintenancemode.2548/
 
-_All players without `maintenance.bypass` are kicked when maintenance mode is entered_
+_All players without the `maintenance.bypass` permission are kicked when maintenance mode is entered_
 
 ### Preview
 
