@@ -1,0 +1,4 @@
+name: MaintenanceMode
+author: Albion
+version: 1.0.0
+main: de.albionco.maintenance.bukkit.BukkitPlugin

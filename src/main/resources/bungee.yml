@@ -1,0 +1,5 @@
+name: MaintenanceMode
+author: Albion
+version: 1.0.0
+main: de.albionco.maintenance.bungee.BungeePlugin
+depends: [Yamler]
