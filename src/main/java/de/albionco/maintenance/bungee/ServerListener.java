@@ -56,7 +56,8 @@ public class ServerListener implements Listener {
     @EventHandler
     public void ping(ProxyPingEvent event) {
         if (parent.getEnabled()) {
-            event.setResponse(parent.getPing());
+            event.getResponse().setVersion(parent.getProtocol());
+            event.getResponse().setDescription(parent.getMOTD());
         }
     }
 

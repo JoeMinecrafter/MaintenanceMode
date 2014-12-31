@@ -23,7 +23,6 @@
 package de.albionco.maintenance.bungee;
 
 import de.albionco.maintenance.bungee.command.CommandMaintenance;
-import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -72,12 +71,13 @@ public class BungeePlugin extends Plugin implements Listener {
     /**
      * Store the response that is sent to clients when the server is pinged in maintenance mode
      */
-    private ServerPing ping;
+    private ServerPing.Protocol protocol;
 
     /**
      * Store whether maintenance mode is enabled or not
      */
     private boolean enabled;
+    private String motd;
 
     @Override
     public void onEnable() {
@@ -94,6 +94,7 @@ public class BungeePlugin extends Plugin implements Listener {
             }
         }
 
+        this.protocol = new ServerPing.Protocol("Maintenance", Short.MAX_VALUE);
         ProxyServer.getInstance().getPluginManager().registerCommand(this, new CommandMaintenance(this));
         ProxyServer.getInstance().getPluginManager().registerListener(this, new ServerListener(this));
     }
@@ -113,21 +114,13 @@ public class BungeePlugin extends Plugin implements Listener {
             getLogger().info("Loaded configuration from file");
         } catch (IOException e) {
             getLogger().severe("Unable to load configuration file");
-
-            // Let the calling class/method know things didn't go so well
             return false;
         }
-
-        ServerPing.Protocol protocol = new ServerPing.Protocol("Maintenance", Short.MAX_VALUE);
-        ServerPing.Players players = new ServerPing.Players(0, 0, null);
-        Favicon icon = null;
 
         this.enabled = getConfig().getBoolean("enabled", false);
         this.whitelist = getConfig().getStringList("whitelist");
         this.message_kick = colour(getConfig().getString("messages.kick", "&cThe server is in maintenance mode, sorry for any inconvenience."));
-        this.ping = new ServerPing(protocol, players, colour(getConfig().getString("messages.motd", "&c&lMaintenance Mode")), icon);
-
-        // Let the calling class/method know everything went well
+        this.motd = colour(getConfig().getString("messages.motd", "&c&lMaintenance mode enabled!"));
         return true;
     }
 
@@ -151,7 +144,7 @@ public class BungeePlugin extends Plugin implements Listener {
                 }
             }
         } else {
-            kick.disconnect(colour(getConfig().getString("messages.kick", this.message_kick)));
+            kick.disconnect(this.message_kick);
         }
     }
 
@@ -218,11 +211,11 @@ public class BungeePlugin extends Plugin implements Listener {
     }
 
     /**
-     * Get the ping object
+     * Get the protocol object
      * @return {@link net.md_5.bungee.api.ServerPing} containing maintenance mode data
      */
-    public ServerPing getPing() {
-        return this.ping;
+    public ServerPing.Protocol getProtocol() {
+        return this.protocol;
     }
 
     /**
@@ -231,5 +224,13 @@ public class BungeePlugin extends Plugin implements Listener {
      */
     public String getKickMessage() {
         return message_kick;
+    }
+
+    /**
+     * Get the "message of the day"
+     * @return message to display in server list
+     */
+    public String getMOTD() {
+        return motd;
     }
 }
