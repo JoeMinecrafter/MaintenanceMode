@@ -102,7 +102,7 @@ public class BukkitPlugin extends JavaPlugin implements Listener {
      */
     public void kick(Player kick) {
         if(kick == null) {
-            boolean skip = (whitelist == null || whitelist.size() > 0);
+            boolean skip = (whitelist == null || whitelist.size() < 1);
             for(Player player : Bukkit.getOnlinePlayers()) {
                 if(skip) {
                     player.kickPlayer(getKickMessage());

@@ -54,6 +54,11 @@ public class BungeePlugin extends Plugin implements Listener {
     private final String file = "config.yml";
 
     /**
+     * Store the response that is sent to clients when the server is pinged in maintenance mode
+     */
+    private ServerPing.Protocol protocol;
+
+    /**
      * Store the list of whitelisted players
      */
     private List<String> whitelist;
@@ -69,9 +74,19 @@ public class BungeePlugin extends Plugin implements Listener {
     private String message_kick;
 
     /**
-     * Store the response that is sent to clients when the server is pinged in maintenance mode
+     * Store when to display an alert
      */
-    private ServerPing.Protocol protocol;
+    private List<Integer> alert;
+
+    /**
+     * Store the countdown message
+     */
+    private String countdownMessage;
+
+    /**
+     * Store the number of seconds the countdown will take
+     */
+    private int countdown;
 
     /**
      * Store whether maintenance mode is enabled or not
@@ -117,6 +132,9 @@ public class BungeePlugin extends Plugin implements Listener {
             return false;
         }
 
+        this.countdown = getConfig().getInt("activation.countdown", 15);
+        this.alert = getConfig().getIntList("activation.announce");
+        this.countdownMessage = getConfig().getString("messages.activation", "&cServer entering maintenance mode in {{ TIME }}");
         this.enabled = getConfig().getBoolean("enabled", false);
         this.whitelist = getConfig().getStringList("whitelist");
         this.message_kick = colour(getConfig().getString("messages.kick", "&cThe server is in maintenance mode, sorry for any inconvenience."));
@@ -130,7 +148,7 @@ public class BungeePlugin extends Plugin implements Listener {
      */
     public void kick(ProxiedPlayer kick) {
         if(kick == null) {
-            boolean skip = (whitelist == null || whitelist.size() > 0);
+            boolean skip = (whitelist == null || whitelist.size() < 1);
 
             for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                 if(skip) {
@@ -219,6 +237,14 @@ public class BungeePlugin extends Plugin implements Listener {
     }
 
     /**
+     * Get the list of times to alert on
+     * @return {@link java.util.List} of integers
+     */
+    public List<Integer> getAlertTimes() {
+        return this.alert;
+    }
+
+    /**
      * Get the kick message
      * @return message to display to kicked players
      */
@@ -232,5 +258,21 @@ public class BungeePlugin extends Plugin implements Listener {
      */
     public String getMOTD() {
         return motd;
+    }
+
+    /**
+     * Get the number of seconds counted down before maintenance mode is activated
+     * @return integer
+     */
+    public int getCountdown() {
+        return this.countdown;
+    }
+
+    /**
+     * Get the message format for countdown broadcasts
+     * @return countdown message format
+     */
+    public String getCountdownMessage() {
+        return this.countdownMessage;
     }
 }

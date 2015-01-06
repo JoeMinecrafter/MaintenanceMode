@@ -28,14 +28,13 @@
 
     <groupId>de.albionco</groupId>
     <artifactId>Maintenance</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <properties>
         <bungee.version>1.8-SNAPSHOT</bungee.version>
         <bukkit.version>1.8-R0.1-SNAPSHOT</bukkit.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
-        <finalName>MaintenanceMode</finalName>
+        <finalName>${project.artifactId}-min</finalName>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
             <plugin>
@@ -71,6 +70,24 @@
                         </replacement>
                     </replacements>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <finalName>${project.artifactId}</finalName>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <minimizeJar>true</minimizeJar>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -116,6 +133,12 @@
             <artifactId>bukkit</artifactId>
             <version>${bukkit.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.3.2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

@@ -25,6 +25,7 @@ package de.albionco.maintenance.bungee.command;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import de.albionco.maintenance.bungee.BungeePlugin;
+import de.albionco.maintenance.bungee.EnableRunnable;
 import de.albionco.maintenance.bungee.event.WhitelistUpdateEvent;
 import de.albionco.maintenance.bungee.event.WhitelistUpdateEvent.Operation;
 import net.md_5.bungee.api.ChatColor;
@@ -36,6 +37,7 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import static de.albionco.maintenance.Messages.*;
 
@@ -78,9 +80,16 @@ public class CommandMaintenance extends Command implements TabExecutor {
                         break;
                     }
 
-                    parent.kick(null);
-                    parent.setEnabled(true);
-                    sender.sendMessage(MAINTENANCE_ENABLED);
+                    parent.getLogger().log(Level.INFO, "Using runnable: {0}", parent.getCountdown() > 0 && parent.getAlertTimes().size() > 0);
+
+                    if(parent.getCountdown() > 0) {
+                        EnableRunnable runnable = new EnableRunnable(parent, sender);
+                        ProxyServer.getInstance().getScheduler().runAsync(parent, runnable);
+                    } else {
+                        parent.kick(null);
+                        parent.setEnabled(true);
+                        sender.sendMessage(MAINTENANCE_ENABLED);
+                    }
                     break;
                 case "disable":
                     if (!parent.getEnabled()) {
