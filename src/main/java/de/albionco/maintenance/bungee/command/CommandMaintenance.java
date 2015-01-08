@@ -80,8 +80,6 @@ public class CommandMaintenance extends Command implements TabExecutor {
                         break;
                     }
 
-                    parent.getLogger().log(Level.INFO, "Using runnable: {0}", parent.getCountdown() > 0 && parent.getAlertTimes().size() > 0);
-
                     if(parent.getCountdown() > 0) {
                         EnableRunnable runnable = new EnableRunnable(parent, sender);
                         ProxyServer.getInstance().getScheduler().runAsync(parent, runnable);

@@ -24,6 +24,7 @@ package de.albionco.maintenance.bukkit.command;
 
 import com.google.common.base.Joiner;
 import de.albionco.maintenance.bukkit.BukkitPlugin;
+import de.albionco.maintenance.bukkit.EnableRunnable;
 import de.albionco.maintenance.bukkit.event.WhitelistUpdateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -70,9 +71,14 @@ public class CommandMaintenance implements CommandExecutor, TabExecutor {
                         break;
                     }
 
-                    parent.kick(null);
-                    parent.setMaintenanceEnabled(true);
-                    sender.sendMessage(MAINTENANCE_ENABLED);
+                    if(parent.getCountdown() > 0) {
+                        EnableRunnable runnable = new EnableRunnable(parent, sender);
+                        Bukkit.getScheduler().runTaskAsynchronously(parent, runnable);
+                    } else {
+                        parent.kick(null);
+                        parent.setMaintenanceEnabled(true);
+                        sender.sendMessage(MAINTENANCE_ENABLED);
+                    }
                     break;
                 case "disable":
                     if (!parent.getEnabled()) {
@@ -127,7 +133,7 @@ public class CommandMaintenance implements CommandExecutor, TabExecutor {
                     sender.sendMessage(ChatColor.GREEN + "Whitelist: " + ChatColor.WHITE + (joined.equals("") ? "No players added to whitelist" : joined));
                     break;
                 case "reload":
-                    parent.reload();
+                    parent.reload(true);
                     sender.sendMessage(CONFIG_RELOAD);
                     break;
                 case "help":

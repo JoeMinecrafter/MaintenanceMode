@@ -32,6 +32,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static de.albionco.maintenance.Messages.colour;
@@ -42,6 +43,16 @@ import static de.albionco.maintenance.Messages.colour;
  * @author Connor Spencer Harries
  */
 public class BukkitPlugin extends JavaPlugin implements Listener {
+
+    /**
+     * Store the list of times to alert on
+     */
+    private List<Integer> alertTimes;
+
+    /**
+     * Store the countdown message format
+     */
+    private String countdownMessage;
 
     /**
      * Store the list of whitelisted players
@@ -63,17 +74,16 @@ public class BukkitPlugin extends JavaPlugin implements Listener {
      */
     private boolean enabled;
 
+    /**
+     * Store the countdown value
+     */
+    private int countdown;
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
-        whitelist = getConfig().getStringList("whitelist");
-        enabled = getConfig().getBoolean("enabled");
-        message_motd = getConfig().getString("messages.message_motd", "&c&lMaintenance Mode");
-        message_kick = getConfig().getString("messages.kick", "&cThe server is in maintenance mode, sorry for any inconvenience.");
-
-        message_motd = colour(message_motd);
-        message_kick = colour(message_kick);
+        reload(false);
 
         PluginCommand command = getCommand("maintenance");
 
@@ -159,7 +169,51 @@ public class BukkitPlugin extends JavaPlugin implements Listener {
     /**
      * Reload our configuration file
      */
-    public void reload() {
-        reloadConfig();
+    public void reload(boolean file) {
+        if(file) {
+            reloadConfig();
+        }
+        alertTimes = new ArrayList<>();
+        countdown = getConfig().getInt("activation.countdown", 15);
+        List<String> list = getConfig().getStringList("activation.announce");
+        for(String s : list) {
+            try {
+                int val = Integer.parseInt(s);
+                if(!alertTimes.contains(val)) {
+                    alertTimes.add(val);
+                }
+            } catch (NumberFormatException ex) {
+                // proceed
+            }
+        }
+        countdownMessage = getConfig().getString("messages.activation", "&cServer entering maintenance mode in {{ TIME }}");
+        whitelist = getConfig().getStringList("whitelist");
+        enabled = getConfig().getBoolean("enabled");
+        message_motd = getConfig().getString("messages.message_motd", "&c&lMaintenance Mode");
+        message_kick = getConfig().getString("messages.kick", "&cThe server is in maintenance mode, sorry for any inconvenience.");
+
+        message_motd = colour(message_motd);
+        message_kick = colour(message_kick);
+    }
+
+    /**
+     * @return the value to count down from
+     */
+    public int getCountdown() {
+        return countdown;
+    }
+
+    /**
+     * @return list of seconds to alert on
+     */
+    public List<Integer> getAlertTimes() {
+        return alertTimes;
+    }
+
+    /**
+     * @return format for the countdown
+     */
+    public String getCountdownMessage() {
+        return countdownMessage;
     }
 }

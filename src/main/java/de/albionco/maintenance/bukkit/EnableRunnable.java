@@ -20,26 +20,26 @@
  * SOFTWARE.
  */
 
-package de.albionco.maintenance.bungee;
+package de.albionco.maintenance.bukkit;
 
 import de.albionco.maintenance.Messages;
-import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.ProxyServer;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 
 import static de.albionco.maintenance.Messages.MAINTENANCE_ENABLED;
 
 /**
- * Created by Connor Harries on 06/01/2015.
+ * Created by Connor Harries on 08/01/2015.
  *
  * @author Connor Spencer Harries
  */
 public class EnableRunnable implements Runnable {
 
-    private final BungeePlugin parent;
+    private final BukkitPlugin parent;
     private final CommandSender sender;
 
-    public EnableRunnable(BungeePlugin parent, CommandSender sender) {
+    public EnableRunnable(BukkitPlugin parent, CommandSender sender) {
         this.parent = parent;
         this.sender = sender;
     }
@@ -47,30 +47,30 @@ public class EnableRunnable implements Runnable {
     @Override
     public void run() {
         int loops = parent.getCountdown();
-        ProxyServer.getInstance().broadcast(Messages.colour(format(parent.getCountdownMessage(), loops)));
+        Bukkit.getServer().broadcastMessage(Messages.colour(format(parent.getCountdownMessage(), loops)));
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for(int i = loops - 1; i > 0; i--) {
-            if(parent.getAlertTimes().contains(i)) {
-                ProxyServer.getInstance().broadcast(Messages.colour(format(parent.getCountdownMessage(), i)));
+        for (int i = loops - 1; i > 0; i--) {
+            if (parent.getAlertTimes().contains(i)) {
+                Bukkit.getServer().broadcastMessage(Messages.colour(format(parent.getCountdownMessage(), i)));
             }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if(i == 1) {
+            if (i == 1) {
                 parent.kick(null);
-                parent.setEnabled(true);
+                parent.setMaintenanceEnabled(true);
                 sender.sendMessage(MAINTENANCE_ENABLED);
             }
         }
     }
 
     private String format(String message, int seconds) {
-        return message.replace("{{ TIME }}", DurationFormatUtils.formatDurationWords(seconds * 1000, true, false));
+        return message.replace("{{ TIME }}", DurationFormatUtils.formatDurationWords(seconds * 1000, true, false)).replace("{{ SECONDS }}", String.valueOf(seconds));
     }
 }
