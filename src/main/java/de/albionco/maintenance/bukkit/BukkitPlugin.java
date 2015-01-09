@@ -189,7 +189,7 @@ public class BukkitPlugin extends JavaPlugin implements Listener {
         countdownMessage = getConfig().getString("messages.activation", "&cServer entering maintenance mode in {{ TIME }}");
         whitelist = getConfig().getStringList("whitelist");
         enabled = getConfig().getBoolean("enabled");
-        message_motd = getConfig().getString("messages.message_motd", "&c&lMaintenance Mode");
+        message_motd = getConfig().getString("messages.motd", "&c&lMaintenance Mode");
         message_kick = getConfig().getString("messages.kick", "&cThe server is in maintenance mode, sorry for any inconvenience.");
 
         message_motd = colour(message_motd);
