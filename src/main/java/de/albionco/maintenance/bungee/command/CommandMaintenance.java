@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Connor Spencer Harries
+ * Copyright (c) 2015 Connor Spencer Harries
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,6 @@ import net.md_5.bungee.api.plugin.TabExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import static de.albionco.maintenance.Messages.*;
 
@@ -46,6 +45,7 @@ import static de.albionco.maintenance.Messages.*;
  *
  * @author Connor Spencer Harries
  */
+@SuppressWarnings("deprecation")
 public class CommandMaintenance extends Command implements TabExecutor {
 
     /**

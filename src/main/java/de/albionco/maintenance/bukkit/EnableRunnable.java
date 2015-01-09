@@ -69,6 +69,7 @@ public class EnableRunnable extends BukkitRunnable {
                 sender.sendMessage(MAINTENANCE_ENABLED);
             }
         }
+        parent.setTaskId(-1);
     }
 
     private String format(String message, int seconds) {

@@ -221,18 +221,31 @@ public class BukkitPlugin extends JavaPlugin implements Listener {
         return countdownMessage;
     }
 
+    /**
+     * @return id of the active EnableRunnable
+     */
     public int getTaskId() {
         return taskId;
     }
 
+    /**
+     * Set the id of the active EnableRunnable
+     *
+     * @param id task id
+     */
     public void setTaskId(int id) {
         this.taskId = id;
     }
 
+    /**
+     * Clear the task
+     */
     public void clearTask() {
         // Added precaution
         if (taskId != -1) {
-            Bukkit.getScheduler().cancelTask(taskId);
+            if (Bukkit.getScheduler().isCurrentlyRunning(taskId)) {
+                Bukkit.getScheduler().cancelTask(taskId);
+            }
         }
         taskId = -1;
     }

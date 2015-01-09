@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Connor Spencer Harries
+ * Copyright (c) 2015 Connor Spencer Harries
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 package de.albionco.maintenance;
 
 /**
- * Created by Connor Harries on 20/12/2014.
+ * Class for usage in BungeeCord and Bukkit.
  *
  * @author Connor Spencer Harries
  */
@@ -54,19 +54,19 @@ public enum ChatColor {
         this.code = code;
     }
 
-    @Override
-    public String toString() {
-        return COLOR_CHAR + "" + code;
-    }
-
     public static String translateAlternateColorCodes(char altColorChar, String textToTranslate) {
         char[] b = textToTranslate.toCharArray();
         for (int i = 0; i < b.length - 1; i++) {
-            if (b[i] == altColorChar && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i+1]) > -1) {
+            if (b[i] == altColorChar && "0123456789AaBbCcDdEeFfKkLlMmNnOoRr".indexOf(b[i + 1]) > -1) {
                 b[i] = ChatColor.COLOR_CHAR;
-                b[i+1] = Character.toLowerCase(b[i+1]);
+                b[i + 1] = Character.toLowerCase(b[i + 1]);
             }
         }
         return new String(b);
+    }
+
+    @Override
+    public String toString() {
+        return COLOR_CHAR + "" + code;
     }
 }

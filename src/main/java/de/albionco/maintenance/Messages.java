@@ -74,6 +74,8 @@ public class Messages {
      */
     public static final String MAINTENANCE_DISABLED_ALREADY = ChatColor.RED + "Maintenance mode isn't enabled!";
 
+    public static final String MAINTENANCE_TASK_ALREADY_RUNNING = ChatColor.RED + "Maintenance mode is already scheduled to turn on!";
+
     /**
      * Message that's displayed when the "cancel" subcommand is executed but no runnable is active
      */
