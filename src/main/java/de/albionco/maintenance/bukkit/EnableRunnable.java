@@ -26,6 +26,7 @@ import de.albionco.maintenance.Messages;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import static de.albionco.maintenance.Messages.MAINTENANCE_ENABLED;
 
@@ -34,7 +35,7 @@ import static de.albionco.maintenance.Messages.MAINTENANCE_ENABLED;
  *
  * @author Connor Spencer Harries
  */
-public class EnableRunnable implements Runnable {
+public class EnableRunnable extends BukkitRunnable {
 
     private final BukkitPlugin parent;
     private final CommandSender sender;

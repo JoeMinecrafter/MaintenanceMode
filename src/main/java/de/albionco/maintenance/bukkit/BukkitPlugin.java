@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Connor Spencer Harries
+ * Copyright (c) 2015 Connor Spencer Harries
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,6 @@
 
 package de.albionco.maintenance.bukkit;
 
-import de.albionco.maintenance.Messages;
 import de.albionco.maintenance.bukkit.command.CommandMaintenance;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -73,6 +72,11 @@ public class BukkitPlugin extends JavaPlugin implements Listener {
      * Store whether maintenance mode is enabled or not
      */
     private boolean enabled;
+
+    /**
+     * Store the ID of the BukkitTask when {@link de.albionco.maintenance.bukkit.EnableRunnable} is used
+     */
+    private int taskId = -1;
 
     /**
      * Store the countdown value
@@ -215,5 +219,21 @@ public class BukkitPlugin extends JavaPlugin implements Listener {
      */
     public String getCountdownMessage() {
         return countdownMessage;
+    }
+
+    public int getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(int id) {
+        this.taskId = id;
+    }
+
+    public void clearTask() {
+        // Added precaution
+        if (taskId != -1) {
+            Bukkit.getScheduler().cancelTask(taskId);
+        }
+        taskId = -1;
     }
 }

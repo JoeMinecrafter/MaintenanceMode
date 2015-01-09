@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Connor Spencer Harries
+ * Copyright (c) 2015 Connor Spencer Harries
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,12 +74,22 @@ public class CommandMaintenance implements CommandExecutor, TabExecutor {
 
                     if(parent.getCountdown() > 0) {
                         EnableRunnable runnable = new EnableRunnable(parent, sender);
-                        Bukkit.getScheduler().runTaskAsynchronously(parent, runnable);
+                        BukkitTask task = Bukkit.getScheduler().runTaskAsynchronously(parent, runnable);
+                        parent.setTaskId(task.getTaskId());
                     } else {
                         parent.kick(null);
                         parent.setMaintenanceEnabled(true);
                         sender.sendMessage(MAINTENANCE_ENABLED);
                     }
+                    break;
+                case "cancel":
+                    if (parent.getTaskId() == -1) {
+                        sender.sendMessage(MAINTENANCE_TASK_NOT_RUNNING);
+                        break;
+                    }
+
+                    parent.clearTask();
+                    Bukkit.broadcastMessage(MAINTENANCE_TASK_STOPPED);
                     break;
                 case "disable":
                     if (!parent.getEnabled()) {
@@ -177,6 +188,10 @@ public class CommandMaintenance implements CommandExecutor, TabExecutor {
 
             if("remove".startsWith(search)) {
                 commands.add("remove");
+            }
+
+            if ("cancel".startsWith(search)) {
+                commands.add("cancel");
             }
 
             if("help".startsWith(search)) {

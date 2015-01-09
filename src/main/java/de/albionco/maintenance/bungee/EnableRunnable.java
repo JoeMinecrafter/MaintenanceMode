@@ -71,6 +71,6 @@ public class EnableRunnable implements Runnable {
     }
 
     private String format(String message, int seconds) {
-        return message.replace("{{ TIME }}", DurationFormatUtils.formatDurationWords(seconds * 1000, true, false));
+        return message.replace("{{ TIME }}", DurationFormatUtils.formatDurationWords(seconds * 1000, true, false)).replace("{{ SECONDS }}", String.valueOf(seconds));
     }
 }

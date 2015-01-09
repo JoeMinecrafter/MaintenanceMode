@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Connor Spencer Harries
+ * Copyright (c) 2015 Connor Spencer Harries
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ public class Messages {
     /**
      * Message that's displayed when the "help" subcommand is executed
      */
-    public static final String HELP_USAGE = ChatColor.YELLOW + "Usage: /maintenance <enable|disable|list|add|remove|reload|help>";
+    public static final String HELP_USAGE = ChatColor.YELLOW + "Usage: /maintenance <enable|disable|cancel|list|add|remove|reload|help>";
 
     /**
      * Message that's displayed when the "reload" subcommand is executed and succeeds
@@ -73,6 +73,16 @@ public class Messages {
      * Message that's displayed when the "disable" subcommand is executed but maintenance mode is already disabled
      */
     public static final String MAINTENANCE_DISABLED_ALREADY = ChatColor.RED + "Maintenance mode isn't enabled!";
+
+    /**
+     * Message that's displayed when the "cancel" subcommand is executed but no runnable is active
+     */
+    public static final String MAINTENANCE_TASK_NOT_RUNNING = ChatColor.RED + "Maintenance mode is not scheduled to be enabled!";
+
+    /**
+     * Message that's displayted when the "cancel" subcommand is executed and is successfully executed.
+     */
+    public static final String MAINTENANCE_TASK_STOPPED = ChatColor.GREEN + "Scheduled maintenance has been cancelled!";
 
     /**
      * Message that's displayed when the "add" subcommand is executed and succeeds
