@@ -92,7 +92,16 @@ public class BungeePlugin extends Plugin implements Listener {
      * Store whether maintenance mode is enabled or not
      */
     private boolean enabled;
+
+    /**
+     * MOTD to display when the server is pinged
+     */
     private String motd;
+
+    /**
+     * Active task ID
+     */
+    private int taskId = -1;
 
     @Override
     public void onEnable() {
@@ -274,5 +283,20 @@ public class BungeePlugin extends Plugin implements Listener {
      */
     public String getCountdownMessage() {
         return this.countdownMessage;
+    }
+
+    public int getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(int id) {
+        this.taskId = id;
+    }
+
+    public void clearTask() {
+        if (taskId != -1) {
+            ProxyServer.getInstance().getScheduler().cancel(taskId);
+        }
+        taskId = -1;
     }
 }

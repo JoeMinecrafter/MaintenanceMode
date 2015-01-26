@@ -34,6 +34,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
+import net.md_5.bungee.api.scheduler.ScheduledTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,13 +82,28 @@ public class CommandMaintenance extends Command implements TabExecutor {
                     }
 
                     if(parent.getCountdown() > 0) {
+                        if (parent.getTaskId() != -1) {
+                            sender.sendMessage(MAINTENANCE_TASK_ALREADY_RUNNING);
+                            break;
+                        }
+
                         EnableRunnable runnable = new EnableRunnable(parent, sender);
-                        ProxyServer.getInstance().getScheduler().runAsync(parent, runnable);
+                        ScheduledTask task = ProxyServer.getInstance().getScheduler().runAsync(parent, runnable);
+                        parent.setTaskId(task.getId());
                     } else {
                         parent.kick(null);
                         parent.setEnabled(true);
                         sender.sendMessage(MAINTENANCE_ENABLED);
                     }
+                    break;
+                case "cancel":
+                    if (parent.getTaskId() == -1) {
+                        sender.sendMessage(MAINTENANCE_TASK_NOT_RUNNING);
+                        break;
+                    }
+
+                    parent.clearTask();
+                    ProxyServer.getInstance().broadcast(MAINTENANCE_TASK_STOPPED);
                     break;
                 case "disable":
                     if (!parent.getEnabled()) {
