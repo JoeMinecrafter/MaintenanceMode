@@ -28,7 +28,7 @@
 
     <groupId>de.albionco</groupId>
     <artifactId>Maintenance</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.3b</version>
     <properties>
         <bungee.version>1.8-SNAPSHOT</bungee.version>
         <bukkit.version>1.8-R0.1-SNAPSHOT</bukkit.version>
