@@ -79,7 +79,7 @@ public class CommandMaintenance implements CommandExecutor, TabExecutor {
                         }
 
                         EnableRunnable runnable = new EnableRunnable(parent, sender);
-                        BukkitTask task = Bukkit.getScheduler().runTaskAsynchronously(parent, runnable);
+                        BukkitTask task = Bukkit.getScheduler().runTask(parent, runnable);
                         parent.setTaskId(task.getTaskId());
                     } else {
                         parent.kick(null);
